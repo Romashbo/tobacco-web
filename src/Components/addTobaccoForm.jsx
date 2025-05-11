@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { createTobacco } from "../appwrite";
+import "./addForm.css";
 
 const AddTobaccoForm = ({ onAdd }) => {
   const [brand, setBrand] = useState("");
@@ -28,35 +29,32 @@ const AddTobaccoForm = ({ onAdd }) => {
   };
 
   return (
-    <Form onSubmit={handleSubmit} className="d-flex mb-3 align-items-center">
+    <Form onSubmit={handleSubmit} className="form-container">
       <Form.Control
         type="text"
         placeholder="Бренд"
         value={brand}
         onChange={(e) => setBrand(e.target.value)}
-        className="me-2"
+        className="form-control-flex"
         required
-        style={{ maxWidth: "150px" }}
       />
       <Form.Control
         type="text"
         placeholder="Вкус"
         value={aroma}
         onChange={(e) => setAroma(e.target.value)}
-        className="me-2"
+        className="form-control-flex"
         required
-        style={{ maxWidth: "150px" }}
       />
       <Form.Control
         type="number"
         value={count}
         min={1}
         onChange={(e) => setCount(parseInt(e.target.value))}
-        className="me-2"
+        className="form-control-flex form-control-count"
         required
-        style={{ maxWidth: "80px" }}
       />
-      <Button type="submit" variant="primary">
+      <Button type="submit" variant="primary" className="submit-button">
         +
       </Button>
     </Form>

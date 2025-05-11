@@ -31,7 +31,10 @@ export const getTobaccoList = async () => {
     const tobacco = await databases.listDocuments(
       AppwriteConfig.databaseId,
       AppwriteConfig.boxCollection,
-      [Query.orderDesc("$createdAt")]
+      [
+        Query.orderDesc("$createdAt"),
+        Query.limit(100), // Укажи нужное число
+      ]
     );
     return tobacco.documents;
   } catch (error) {

@@ -1,0 +1,36 @@
+/* AddTobaccoForm.css */
+
+/* Форма с полной шириной и отступами */
+.form-container {
+    display: flex;
+    margin-bottom: 1rem;
+    align-items: center;
+    width: 100%;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  @media (min-width: 992px) {
+    .form-container {
+      width: 50%;
+      
+    }
+  }
+  
+  /* Стиль для всех полей ввода с адаптивной шириной */
+  .form-control-flex {
+    margin-right: 1rem;
+    flex-grow: 1;
+  }
+  
+  /* Стиль для поля count с фиксированной шириной */
+  .form-control-count {
+    width: 80px;
+  }
+  
+  /* Кнопка */
+  .submit-button {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
