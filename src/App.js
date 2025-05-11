@@ -1,30 +1,24 @@
-// App.jsx
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import MainTabs from "./MainTabs"; // <-- если есть MainTabs.jsx
-import LoginForm from "./Components/sing-in";
-import ProtectedRoute from "./Components/ProtectedRoute";
+import logo from "./logo.svg";
+import "./App.css";
+import TobaccoList from "./Components/TobaccoList";
+
+import { Tab, Tabs } from "react-bootstrap";
+import AddTobaccoForm from "./Components/addTobaccoForm";
+import OrderTobacco from "./Components/OrderTobacco";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Navigate to="/home" />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <MainTabs />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
+    <div className="App">
+      <h1 style={{ textAlign: "center" }}>Табак Канада бар</h1>
+      <Tabs defaultActiveKey="home" className="mb-3" fill>
+        <Tab eventKey="home" title="Коробка">
+          <TobaccoList />
+        </Tab>
+        <Tab eventKey="profile" title="Заявка">
+          <OrderTobacco />
+        </Tab>
+      </Tabs>
+    </div>
   );
 }
 

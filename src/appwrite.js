@@ -16,16 +16,6 @@ client
 const databases = new Databases(client);
 const account = new Account(client);
 
-export const login = async (name, password) => {
-  try {
-    await account.createEmailPasswordSession(name, password);
-    const user = await account.get();
-    return user;
-  } catch (error) {
-    throw new Error("Неверный email или пароль");
-  }
-};
-
 export const getTobaccoList = async () => {
   try {
     const tobacco = await databases.listDocuments(
