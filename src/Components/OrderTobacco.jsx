@@ -46,7 +46,7 @@ const OrderTobacco = () => {
       <AddOrderForm onAdd={handleAddTobacco} />
 
       <Form.Select
-        style={{ maxWidth: 300, marginBottom: 20 }}
+        style={{ maxWidth: 300, marginBottom: 20, marginLeft: "10px" }}
         value={selectedBrand}
         onChange={(e) => setSelectedBrand(e.target.value)}
       >
@@ -60,7 +60,7 @@ const OrderTobacco = () => {
 
       <Stack gap={2}>
         {filteredList.length === 0 ? (
-          <div>Заявка пуста.</div>
+          <div style={{ marginLeft: "10px" }}>Заявка пуста.</div>
         ) : (
           filteredList.map((item) => (
             <div className="list" key={item.$id}>
