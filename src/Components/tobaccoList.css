@@ -1,0 +1,19 @@
+.list {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 20px;
+    gap: 10px;
+    border-bottom: 1px solid black;
+    height: 40px;
+    padding: 20px;
+  }
+  
+  @media (min-width: 992px) {
+    .list {
+      width: 50%;
+      
+    }
+  }
+  
