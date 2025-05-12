@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Form, Button } from "react-bootstrap";
-import { createOrderTobacco } from "../appwrite";
+import { createCalTobacco } from "../appwrite";
 import "./addForm.css";
 
-const AddOrderForm = ({ onAdd }) => {
+const AddCalForm = ({ onAdd }) => {
   const [brand, setBrand] = useState("");
   const [aroma, setAroma] = useState("");
 
@@ -16,7 +16,7 @@ const AddOrderForm = ({ onAdd }) => {
         aroma: aroma.trim(),
       };
 
-      const result = await createOrderTobacco(newTobacco);
+      const result = await createCalTobacco(newTobacco);
       onAdd(result);
       setBrand("");
       setAroma("");
@@ -51,4 +51,4 @@ const AddOrderForm = ({ onAdd }) => {
   );
 };
 
-export default AddOrderForm;
+export default AddCalForm;

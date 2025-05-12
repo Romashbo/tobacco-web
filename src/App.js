@@ -5,6 +5,7 @@ import TobaccoList from "./Components/TobaccoList";
 import { Tab, Tabs } from "react-bootstrap";
 import AddTobaccoForm from "./Components/addTobaccoForm";
 import OrderTobacco from "./Components/OrderTobacco";
+import CalTobacco from "./Components/CalTobacco";
 
 function App() {
   return (
@@ -14,8 +15,11 @@ function App() {
         <Tab eventKey="home" title="Коробка">
           <TobaccoList />
         </Tab>
-        <Tab eventKey="profile" title="Заявка">
+        <Tab eventKey="order" title="Заявка">
           <OrderTobacco />
+        </Tab>
+        <Tab eventKey="cal" title="Избив">
+          <CalTobacco />
         </Tab>
       </Tabs>
     </div>

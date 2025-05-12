@@ -6,6 +6,7 @@ export const AppwriteConfig = {
   databaseId: "68206949001f7d23b91b",
   boxCollection: "682069730010de16a48b",
   orderCollection: "68207c88001ad97aa8d5",
+  calCollection: "6821bf3a00127d5156d0",
 };
 
 const client = new Client();
@@ -105,6 +106,46 @@ export const createOrderTobacco = async (data) => {
     return await databases.createDocument(
       AppwriteConfig.databaseId,
       AppwriteConfig.orderCollection,
+      "unique()",
+      data
+    );
+  } catch (error) {
+    console.error("Ошибка создания табака:", error);
+    throw error;
+  }
+};
+export const getCalTobacco = async () => {
+  try {
+    const tobacco = await databases.listDocuments(
+      AppwriteConfig.databaseId,
+      AppwriteConfig.calCollection,
+      [Query.orderDesc("$createdAt")]
+    );
+    return tobacco.documents;
+  } catch (error) {
+    console.error("Error fetching tobacco list:", error);
+    throw error;
+  }
+};
+
+export const deleteCalTobacco = async (id) => {
+  try {
+    return await databases.deleteDocument(
+      AppwriteConfig.databaseId,
+      AppwriteConfig.calCollection,
+      id
+    );
+  } catch (error) {
+    console.error("Ошибка удаления документа:", error);
+    throw error;
+  }
+};
+
+export const createCalTobacco = async (data) => {
+  try {
+    return await databases.createDocument(
+      AppwriteConfig.databaseId,
+      AppwriteConfig.calCollection,
       "unique()",
       data
     );

@@ -13,8 +13,8 @@ const AddTobaccoForm = ({ onAdd }) => {
 
     try {
       const newTobacco = {
-        brand,
-        aroma,
+        brand: brand.trim(),
+        aroma: aroma.trim(),
         count,
       };
 
@@ -40,7 +40,7 @@ const AddTobaccoForm = ({ onAdd }) => {
       />
       <Form.Control
         type="text"
-        placeholder="Вкус"
+        placeholder="Аромат"
         value={aroma}
         onChange={(e) => setAroma(e.target.value)}
         className="form-control-flex"
