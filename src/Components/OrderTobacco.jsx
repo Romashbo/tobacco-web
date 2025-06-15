@@ -57,7 +57,9 @@ const OrderTobacco = () => {
           </option>
         ))}
       </Form.Select>
-
+      <p style={{ marginLeft: "10px", color: "gray" }}>
+        Кол-во {filteredList.length}
+      </p>
       <Stack gap={2}>
         {filteredList.length === 0 ? (
           <div style={{ marginLeft: "10px" }}>Заявка пуста.</div>
