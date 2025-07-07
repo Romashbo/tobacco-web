@@ -139,6 +139,9 @@ function WorkTab() {
     const newCount = didComplete ? completedCount + 1 : completedCount;
     broadcastState(updated, newCount);
   };
+  const handleResetCount = () => {
+    broadcastState(sessions, 0);
+  };
 
   const removeSessionById = (id) => {
     const session = sessions.find((s) => s.id === id);
@@ -265,7 +268,15 @@ function WorkTab() {
         renderSessions(firstSessions, "Первая замена")}
       {secondSessions.length > 0 &&
         renderSessions(secondSessions, "Вторая замена")}
-      <Alert variant="success">✅ Всего шиша: {completedCount}</Alert>
+      <Alert
+        variant="success"
+        className="d-flex justify-content-between align-items-center"
+      >
+        <div>✅ Всего шиша: {completedCount}</div>
+        <Button variant="outline-danger" size="sm" onClick={handleResetCount}>
+          Сбросить
+        </Button>
+      </Alert>
     </Container>
   );
 }
