@@ -13,7 +13,7 @@ import { useDrag, useDrop } from "react-dnd";
 import { v4 as uuidv4 } from "uuid";
 
 const ITEM_TYPE = "SESSION";
-const TIMER_DURATION = 2 * 60 * 1000;
+const TIMER_DURATION = 15 * 60 * 1000;
 const SOCKET_URL = "wss://websocket-server-production-8233.up.railway.app";
 
 const ZONES = {
