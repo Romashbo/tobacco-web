@@ -268,15 +268,19 @@ function WorkTab() {
         renderSessions(firstSessions, "Первая замена")}
       {secondSessions.length > 0 &&
         renderSessions(secondSessions, "Вторая замена")}
-      <Alert
-        variant="success"
-        className="d-flex justify-content-between align-items-center"
-      >
-        <div>✅ Всего шиша: {completedCount}</div>
-        <Button variant="outline-danger" size="sm" onClick={handleResetCount}>
-          Сбросить
-        </Button>
-      </Alert>
+      {completedCount >= 1 ? (
+        <Alert
+          variant="success"
+          className="d-flex justify-content-between align-items-center"
+        >
+          <div>✅ Всего шиша: {completedCount}</div>
+          <Button variant="outline-danger" size="sm" onClick={handleResetCount}>
+            Сбросить
+          </Button>
+        </Alert>
+      ) : (
+        ""
+      )}
     </Container>
   );
 }
