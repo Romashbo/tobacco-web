@@ -7,9 +7,12 @@ import {
   Col,
   Badge,
   Collapse,
+  Alert,
 } from "react-bootstrap";
+import { useDrag, useDrop } from "react-dnd";
 import { v4 as uuidv4 } from "uuid";
 
+const ITEM_TYPE = "SESSION";
 const TIMER_DURATION = 15 * 60 * 1000;
 const SOCKET_URL = "wss://websocket-server-production-8233.up.railway.app";
 
@@ -23,17 +26,16 @@ const ZONES = {
 
 function WorkTab() {
   const [sessions, setSessions] = useState([]);
+  const [completedCount, setCompletedCount] = useState(0);
   const [showTables, setShowTables] = useState(true);
   const socketRef = useRef(null);
 
-  // Подключение к WebSocket
+  // WebSocket
   useEffect(() => {
     const socket = new WebSocket(SOCKET_URL);
     socketRef.current = socket;
 
-    socket.onopen = () => {
-      console.log("✅ WebSocket connected");
-    };
+    socket.onopen = () => console.log("✅ WebSocket connected");
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -42,27 +44,14 @@ function WorkTab() {
       }
     };
 
-    socket.onerror = (error) => {
-      console.error("WebSocket error", error);
-    };
-
-    socket.onclose = () => {
-      console.log("🔌 WebSocket disconnected");
-    };
-
-    return () => {
-      socket.close();
-    };
+    return () => socket.close();
   }, []);
 
   const broadcastSessions = (updatedSessions) => {
     setSessions(updatedSessions);
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       socketRef.current.send(
-        JSON.stringify({
-          type: "updateSessions",
-          sessions: updatedSessions,
-        })
+        JSON.stringify({ type: "updateSessions", sessions: updatedSessions })
       );
     }
   };
@@ -85,8 +74,31 @@ function WorkTab() {
       broadcastSessions(newSessions);
     }
   };
+  const DropZone = () => {
+    const [, drop] = useDrop(() => ({
+      accept: ITEM_TYPE,
+      drop: (item) => removeSessionById(item.id),
+    }));
+
+    return (
+      <div
+        ref={drop}
+        style={{
+          padding: "1rem",
+          border: "2px dashed #aaa",
+          textAlign: "center",
+          marginBottom: "1rem",
+          borderRadius: "8px",
+        }}
+      >
+        Удалить стол
+      </div>
+    );
+  };
 
   const handleSessionClick = (sessionId) => {
+    let didComplete = false;
+
     const updated = sessions
       .map((s) => {
         if (s.id !== sessionId) return s;
@@ -94,12 +106,30 @@ function WorkTab() {
           return { ...s, phase: "first", startTime: Date.now() };
         if (s.phase === "first")
           return { ...s, phase: "second", startTime: Date.now() };
-        if (s.phase === "second") return { ...s, phase: "done" };
+        if (s.phase === "second") {
+          didComplete = true;
+          return { ...s, phase: "done" };
+        }
         return s;
       })
       .filter((s) => s.phase !== "done");
 
+    if (didComplete) {
+      setCompletedCount((prev) => prev + 1);
+    }
+
     broadcastSessions(updated);
+  };
+
+  const removeSessionById = (id) => {
+    const session = sessions.find((s) => s.id === id);
+
+    if (session?.phase === "second") {
+      setCompletedCount((prev) => prev + 1);
+    }
+
+    const remaining = sessions.filter((s) => s.id !== id);
+    broadcastSessions(remaining);
   };
 
   const renderTimer = (startTime) => {
@@ -117,14 +147,40 @@ function WorkTab() {
     return () => clearInterval(interval);
   }, []);
 
+  const DraggableSession = ({ session }) => {
+    const [, drag] = useDrag(() => ({
+      type: ITEM_TYPE,
+      item: { id: session.id },
+    }));
+
+    return (
+      <div ref={drag} style={{ width: "6rem" }}>
+        <Card
+          onClick={() => handleSessionClick(session.id)}
+          style={{ cursor: "grab", textAlign: "center" }}
+          border={
+            session.phase === "preparing"
+              ? "primary"
+              : session.phase === "first"
+              ? "warning"
+              : "success"
+          }
+        >
+          <Card.Body className="p-2">
+            <div className="fw-bold">{session.tableId}</div>
+            <div>{renderTimer(session.startTime)}</div>
+          </Card.Body>
+        </Card>
+      </div>
+    );
+  };
+
   const firstSessions = sessions
     .filter((s) => s.phase === "first")
     .sort((a, b) => a.startTime - b.startTime);
-
   const secondSessions = sessions
     .filter((s) => s.phase === "second")
     .sort((a, b) => a.startTime - b.startTime);
-
   const preparingSessions = sessions.filter((s) => s.phase === "preparing");
 
   const renderSessions = (sessionList, title) => (
@@ -132,24 +188,7 @@ function WorkTab() {
       <h5 className="border-bottom pb-2">{title}</h5>
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
         {sessionList.map((session) => (
-          <div key={session.id} style={{ width: "6rem" }}>
-            <Card
-              onClick={() => handleSessionClick(session.id)}
-              style={{ cursor: "pointer", textAlign: "center" }}
-              border={
-                session.phase === "preparing"
-                  ? "primary"
-                  : session.phase === "first"
-                  ? "warning"
-                  : "success"
-              }
-            >
-              <Card.Body className="p-2">
-                <div className="fw-bold">{session.tableId}</div>
-                <div>{renderTimer(session.startTime)}</div>
-              </Card.Body>
-            </Card>
-          </div>
+          <DraggableSession key={session.id} session={session} />
         ))}
       </div>
     </div>
@@ -181,7 +220,7 @@ function WorkTab() {
 
   return (
     <Container className="py-4">
-      <h3 className="mb-3">Столы</h3>
+      <DropZone />
 
       <div className="mb-3">
         <Button
@@ -207,6 +246,7 @@ function WorkTab() {
         renderSessions(firstSessions, "Первая замена")}
       {secondSessions.length > 0 &&
         renderSessions(secondSessions, "Вторая замена")}
+      <Alert variant="success">✅ Всего кальянов: {completedCount}</Alert>
     </Container>
   );
 }
