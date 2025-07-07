@@ -1,4 +1,4 @@
-import logo from "./logo.svg";
+import logo from "./Components/logocanada.png";
 import "./App.css";
 import TobaccoList from "./Components/TobaccoList";
 
@@ -12,7 +12,10 @@ import WorkTab from "./Components/WorkTab";
 function App() {
   return (
     <div className="App">
-      <h1 style={{ textAlign: "center" }}>Табак Канада бар</h1>
+      <div className="app-title">
+        <h1 style={{ textAlign: "center" }}>Canada bar</h1>
+        <img src={logo} className="App-logo" alt="logo" />
+      </div>
       <Tabs defaultActiveKey="WorkTab" className="mb-3 gap-2" fill>
         <Tab eventKey="WorkTab" title="Рабочий экран">
           <DndProvider backend={HTML5Backend}>

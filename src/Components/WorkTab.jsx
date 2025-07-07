@@ -13,7 +13,7 @@ import { useDrag, useDrop } from "react-dnd";
 import { v4 as uuidv4 } from "uuid";
 
 const ITEM_TYPE = "SESSION";
-const TIMER_DURATION = 15 * 60 * 1000;
+const TIMER_DURATION = 2 * 60 * 1000;
 const SOCKET_URL = "wss://websocket-server-production-8233.up.railway.app";
 
 const ZONES = {
@@ -27,7 +27,7 @@ const ZONES = {
 function WorkTab() {
   const [sessions, setSessions] = useState([]);
   const [completedCount, setCompletedCount] = useState(0);
-  const [showTables, setShowTables] = useState(true);
+  const [showTables, setShowTables] = useState(false);
   const socketRef = useRef(null);
 
   // WebSocket
@@ -39,8 +39,9 @@ function WorkTab() {
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.type === "updateSessions") {
+      if (data.type === "syncState") {
         setSessions(data.sessions);
+        setCompletedCount(data.completedCount);
       }
     };
 
@@ -52,6 +53,20 @@ function WorkTab() {
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       socketRef.current.send(
         JSON.stringify({ type: "updateSessions", sessions: updatedSessions })
+      );
+    }
+  };
+  const broadcastState = (updatedSessions, updatedCompletedCount) => {
+    setSessions(updatedSessions);
+    setCompletedCount(updatedCompletedCount);
+
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.send(
+        JSON.stringify({
+          type: "updateState",
+          sessions: updatedSessions,
+          completedCount: updatedCompletedCount,
+        })
       );
     }
   };
@@ -69,11 +84,13 @@ function WorkTab() {
           tableId,
           phase: "preparing",
           startTime: Date.now(),
+          alerted: false,
         },
       ];
       broadcastSessions(newSessions);
     }
   };
+
   const DropZone = () => {
     const [, drop] = useDrop(() => ({
       accept: ITEM_TYPE,
@@ -91,7 +108,7 @@ function WorkTab() {
           borderRadius: "8px",
         }}
       >
-        Удалить стол
+        Удалить шиша
       </div>
     );
   };
@@ -114,22 +131,18 @@ function WorkTab() {
       })
       .filter((s) => s.phase !== "done");
 
-    if (didComplete) {
-      setCompletedCount((prev) => prev + 1);
-    }
-
-    broadcastSessions(updated);
+    const newCount = didComplete ? completedCount + 1 : completedCount;
+    broadcastState(updated, newCount);
   };
 
   const removeSessionById = (id) => {
     const session = sessions.find((s) => s.id === id);
-
-    if (session?.phase === "second") {
-      setCompletedCount((prev) => prev + 1);
-    }
+    const didComplete = session?.phase === "second";
 
     const remaining = sessions.filter((s) => s.id !== id);
-    broadcastSessions(remaining);
+    const newCount = didComplete ? completedCount + 1 : completedCount;
+
+    broadcastState(remaining, newCount);
   };
 
   const renderTimer = (startTime) => {
@@ -140,6 +153,7 @@ function WorkTab() {
     return <Badge bg={isOverdue ? "danger" : "secondary"}>{minutes} мин</Badge>;
   };
 
+  // Обновление UI раз в минуту
   useEffect(() => {
     const interval = setInterval(() => {
       setSessions((prev) => [...prev]);
@@ -246,7 +260,7 @@ function WorkTab() {
         renderSessions(firstSessions, "Первая замена")}
       {secondSessions.length > 0 &&
         renderSessions(secondSessions, "Вторая замена")}
-      <Alert variant="success">✅ Всего кальянов: {completedCount}</Alert>
+      <Alert variant="success">✅ Всего шиша: {completedCount}</Alert>
     </Container>
   );
 }
