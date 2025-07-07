@@ -52,10 +52,15 @@ function WorkTab() {
     setSessions(updatedSessions);
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       socketRef.current.send(
-        JSON.stringify({ type: "updateSessions", sessions: updatedSessions })
+        JSON.stringify({
+          type: "updateState",
+          sessions: updatedSessions,
+          completedCount, // добавь текущий счет
+        })
       );
     }
   };
+
   const broadcastState = (updatedSessions, updatedCompletedCount) => {
     setSessions(updatedSessions);
     setCompletedCount(updatedCompletedCount);
