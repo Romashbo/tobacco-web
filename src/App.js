@@ -6,12 +6,16 @@ import { Tab, Tabs } from "react-bootstrap";
 import AddTobaccoForm from "./Components/addTobaccoForm";
 import OrderTobacco from "./Components/OrderTobacco";
 import CalTobacco from "./Components/CalTobacco";
+import WorkTab from "./Components/WorkTab";
 
 function App() {
   return (
     <div className="App">
       <h1 style={{ textAlign: "center" }}>Табак Канада бар</h1>
-      <Tabs defaultActiveKey="home" className="mb-3" fill>
+      <Tabs defaultActiveKey="WorkTab" className="mb-3" fill>
+        <Tab eventKey="WorkTab" title="Рабочий экран">
+          <WorkTab />
+        </Tab>
         <Tab eventKey="home" title="Коробка">
           <TobaccoList />
         </Tab>
