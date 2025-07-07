@@ -11,7 +11,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 
 const TIMER_DURATION = 15 * 60 * 1000;
-const SOCKET_URL = "wss://tobacco-web.vercel.app";
+const SOCKET_URL = "wss://websocket-server-production-8233.up.railway.app";
 
 const ZONES = {
   Зал: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
