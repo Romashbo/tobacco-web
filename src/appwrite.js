@@ -1,4 +1,4 @@
-import { Client, Databases, Query, Account } from "appwrite";
+import { Client, Databases, Query, Account, ID } from "appwrite";
 
 export const AppwriteConfig = {
   endpoint: "https://fra.cloud.appwrite.io/v1",
@@ -7,6 +7,8 @@ export const AppwriteConfig = {
   boxCollection: "682069730010de16a48b",
   orderCollection: "68207c88001ad97aa8d5",
   calCollection: "6821bf3a00127d5156d0",
+  shiftsDatabaseId: "6908ad19000b9c11bab2",
+  shiftsCollection: "6908af4b003ce7afb6e7",
 };
 
 const client = new Client();
@@ -157,6 +159,109 @@ export const createCalTobacco = async (data) => {
     console.error("Ошибка создания табака:", error);
     throw error;
   }
+};
+// --- СМЕНЫ (учёт кальянов по сотруднику) ---
+
+/** Анонимная сессия (если нужна) */
+export const ensureSession = async () => {
+  try {
+    await account.get();
+  } catch {
+    await account.createAnonymousSession();
+  }
+};
+
+/** Записать закрытие смены */
+export const createShift = async ({
+  employeeId,
+  employeeName,
+  count,
+  startedAt, // ISO-строка или Date | number
+  endedAt, // ISO-строка или Date | number
+}) => {
+  await ensureSession();
+
+  const toISO = (v) =>
+    typeof v === "string" ? v : new Date(v ?? Date.now()).toISOString();
+
+  const _startedAt = toISO(startedAt);
+  const _endedAt = toISO(endedAt);
+  const workDate = _startedAt.slice(0, 10); // YYYY-MM-DD
+
+  return await databases.createDocument(
+    AppwriteConfig.shiftsDatabaseId,
+    AppwriteConfig.shiftsCollection,
+    "unique()",
+    {
+      employeeId,
+      employeeName,
+      count,
+      startedAt: _startedAt,
+      endedAt: _endedAt,
+      workDate,
+    }
+  );
+};
+
+/** История смен по сотруднику (последние N) */
+export const listShiftsByEmployee = async (employeeId, limit = 50) => {
+  await ensureSession();
+  const res = await databases.listDocuments(
+    AppwriteConfig.shiftsDatabaseId,
+    AppwriteConfig.shiftsCollection,
+    [
+      Query.equal("employeeId", employeeId),
+      Query.orderDesc("$createdAt"),
+      Query.limit(limit),
+    ]
+  );
+  return res.documents;
+};
+
+/** История смен по диапазону дат (YYYY-MM-DD) */
+export const listShiftsByDateRange = async (fromYmd, toYmd, limit = 200) => {
+  await ensureSession();
+  const res = await databases.listDocuments(
+    AppwriteConfig.shiftsDatabaseId,
+    AppwriteConfig.shiftsCollection,
+    [
+      Query.greaterThanEqual("workDate", fromYmd),
+      Query.lessThanEqual("workDate", toYmd),
+      Query.orderDesc("workDate"),
+      Query.limit(limit),
+    ]
+  );
+  return res.documents;
+};
+
+// Удалить ВСЕ записи (всех сотрудников) из коллекции смен
+export const deleteAllShifts = async () => {
+  await ensureSession();
+
+  const db = AppwriteConfig.shiftsDatabaseId;
+  const coll = AppwriteConfig.shiftsCollection;
+
+  let lastId = null;
+  let deleted = 0;
+
+  // Идём порциями по 100 доков, пока не закончатся
+  while (true) {
+    const queries = [Query.limit(100)];
+    if (lastId) queries.push(Query.cursorAfter(lastId));
+
+    const res = await databases.listDocuments(db, coll, queries);
+    const docs = res.documents || [];
+    if (docs.length === 0) break;
+
+    for (const d of docs) {
+      await databases.deleteDocument(db, coll, d.$id);
+      deleted++;
+    }
+    lastId = docs[docs.length - 1].$id;
+    if (docs.length < 100) break;
+  }
+
+  return { deleted };
 };
 
 export { account };
