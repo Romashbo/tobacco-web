@@ -2,13 +2,13 @@ import { Client, Databases, Query, Account, ID } from "appwrite";
 
 export const AppwriteConfig = {
   endpoint: "https://fra.cloud.appwrite.io/v1",
-  projectId: "6820689a00180f71a4e3",
-  databaseId: "68206949001f7d23b91b",
-  boxCollection: "682069730010de16a48b",
-  orderCollection: "68207c88001ad97aa8d5",
-  calCollection: "6821bf3a00127d5156d0",
-  shiftsDatabaseId: "6908ad19000b9c11bab2",
-  shiftsCollection: "6908af4b003ce7afb6e7",
+  projectId: "69089faf0003f07e18f8",
+  databaseId: "6908a04d0019b032bd7d",
+  boxCollection: "6908a29e0022b0b1f3bc",
+  orderCollection: "690fb356000ca205fc03",
+  calCollection: "690fb3390024f9fa3f0e",
+  shiftsDatabaseId: "690fb45700324f5c54a6",
+  shiftsCollection: "690fb46e0012ce73315a",
 };
 
 const client = new Client();
